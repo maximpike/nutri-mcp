@@ -1,0 +1,22 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  h2:
+    console:
+      enabled: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.maximpike.nutrimc: DEBUG
+    root: INFO
+
+nutrimc:
+  mcp:
+    base-url: "https://api.nal.usda.gov/fdc"
+    api-key: "DEMO_KEY"  # Will be replaced with real key later
