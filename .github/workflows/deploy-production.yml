@@ -1,0 +1,82 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_deployment:
+        description: 'Type "Deploy" to confirm production deployment'
+        required: true
+        type: string
+      version_tag:
+        description: 'Version/Tag to deploy (leave empty for latest main)'
+        required: false
+        type: string
+
+jobs:
+  validate-input:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Validate deployment confirmation
+          if: github.event.inputs.confirm_deployment != 'DEPLOY'
+          run: | 
+            echo "Deployment not confirmed. Please type 'DEPLOY' to proceed."
+            exit 1
+
+  depoly:
+    needs: validate-input
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version_tag || 'main' }}
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run final tests
+        run: mvn clean verify
+
+      - name: Build application
+        run: mvn clean package -DskipTests
+
+      # AWS/Terraform steps will be uncommented when infrastructure is ready
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: us-east-1
+
+      # - name: Setup Terraform
+      #   uses: hashicorp/setup-terraform@v3
+      #   with:
+      #     terraform_version: 1.6.0
+
+      # - name: Deploy Infrastructure
+      #   run: echo "Terraform deployment will be added later"
+
+      # - name: Deploy Application
+      #   run: echo "Ansible deployment will be added later"
+
+      - name: Create GitHub Release
+        if: success()
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
