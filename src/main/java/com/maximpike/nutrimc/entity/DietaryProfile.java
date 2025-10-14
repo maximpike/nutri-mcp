@@ -31,4 +31,5 @@ public class DietaryProfile extends BaseEntity {
     // TODO: Add allergies field (JSON array)
     // TODO: Add culturalPreferences field (JSON array)
     // TODO: Add relationship to User entity
+
 }
