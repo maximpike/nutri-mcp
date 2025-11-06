@@ -1,8 +1,7 @@
 package com.maximpike.nutrimc.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.maximpike.nutrimc.entity.enums.DietType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,22 +13,23 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DietaryProfile extends BaseEntity {
 
-    // TODO: Add @JoinColumn and @OneToOne relationship to User after we test basic entity
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "diet_type", nullable = false)
-    private String dietType;
+    private DietType dietType;
 
     @Column(name = "calorie_target")
     private int calorieTarget;
 
-    public DietaryProfile(String dietType) {
+    public DietaryProfile(DietType dietType) {
         this.dietType = dietType;
     }
 
     // TODO: Add validation - calorieTarget should be > 500
-    // TODO: Refactor dietType to ENUM
     // TODO: Add allergies field (JSON array)
     // TODO: Add culturalPreferences field (JSON array)
-    // TODO: Add relationship to User entity
 
 }

@@ -1,8 +1,6 @@
 package com.maximpike.nutrimc.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -24,12 +22,20 @@ public class User extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private DietaryProfile dietaryProfile;
+
     public User(String email) {
         this.email = email;
     }
 
+    public void setDietaryProfile(DietaryProfile dietaryProfile) {
+        if (dietaryProfile != null) {
+            dietaryProfile.setUser(this);
+        }
+        this.dietaryProfile = dietaryProfile;
+    }
     // TODO: Add googleId when implementing OAuth (Day 3)
     // TODO: Add profilePictureUrl for user avatar
-    // TODO: Add relationship to DietaryProfile after creating that entity
     // TODO: Service layer validation: name cannot be blanked once set
 }
