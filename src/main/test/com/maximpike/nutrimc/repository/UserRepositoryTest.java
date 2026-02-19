@@ -1,6 +1,8 @@
 package com.maximpike.nutrimc.repository;
 
+import com.maximpike.nutrimc.entity.DietaryProfile;
 import com.maximpike.nutrimc.entity.User;
+import com.maximpike.nutrimc.entity.enums.DietType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +18,7 @@ public class UserRepositoryTest {
     private UserRepository userRepository;
 
     @Test
-    void testSaveUserAndGenerateId() {
+    void shouldSaveUser() {
         // given
         User user = new User("test@example.com");
         user.setName("Test User");
@@ -27,19 +29,20 @@ public class UserRepositoryTest {
         // then
         assertThat(savedUser.getId()).isNotNull();
         assertThat(savedUser.getCreatedAt()).isNotNull();
+        assertThat(savedUser.getUpdatedAt()).isNotNull();
         assertThat(savedUser.getEmail()).isEqualTo("test@example.com");
         assertThat(savedUser.getName()).isEqualTo("Test User");
     }
 
     @Test
-    void testFindUserById() {
+    void shouldFindUserByEmail() {
         // given
         User user = new User("testfinduser@example.com");
         user.setName("Findable User");
         User savedUser = userRepository.save(user);
 
         // when
-        Optional<User> result = userRepository.findById(savedUser.getId());
+        Optional<User> result = userRepository.findByEmail(savedUser.getEmail());
 
         // then
         assertThat(result).isPresent();
@@ -50,7 +53,25 @@ public class UserRepositoryTest {
         assertThat(foundUser.getName()).isEqualTo("Findable User");
     }
 
-    // TODO: Add test for findByEmail when we implement that custom query
-    // TODO: Add test for user not found (empty Optional)
+    @Test
+    void shouldSaveUserWithDietaryProfile() {
+        // given
+        User user = new User("testuser@user.com");
+        DietaryProfile profile = new DietaryProfile(DietType.VEGETARIAN);
 
+        // Set relationship (helper method maintains both sides)
+        user.setDietaryProfile(profile);
+
+        // when
+        User savedUser = userRepository.save(user);
+
+        // then
+
+        assertThat(savedUser.getId()).isNotNull();
+        assertThat(savedUser.getDietaryProfile()).isNotNull();
+        assertThat(savedUser.getDietaryProfile().getId()).isNotNull();
+        assertThat(savedUser.getDietaryProfile().getDietType()).isEqualTo(DietType.VEGETARIAN);
+        assertThat(savedUser.getDietaryProfile().getUser()).isEqualTo(savedUser);
+    }
+    // TODO: Add test for user not found (empty Optional)
 }

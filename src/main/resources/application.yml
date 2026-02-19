@@ -5,25 +5,24 @@ spring:
   profiles:
     active: dev
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nutrimc
+    username: admin
+    password: admin
+
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password: password
-
-    h2:
-      console:
-        enabled: true
-        path: /h2-console
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
   jackson:
     property-naming-strategy: SNAKE_CASE
@@ -46,7 +45,7 @@ logging:
     com.maximpike.nutrimc: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.flywaydb: INFO
 
 # Custom application properties
 nutrimc:
