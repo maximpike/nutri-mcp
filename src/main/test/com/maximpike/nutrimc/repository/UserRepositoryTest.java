@@ -42,7 +42,7 @@ public class UserRepositoryTest {
         User savedUser = userRepository.save(user);
 
         // when
-        Optional<User> result = userRepository.findById(savedUser.getId());
+        Optional<User> result = userRepository.findByEmail(savedUser.getEmail());
 
         // then
         assertThat(result).isPresent();
