@@ -1,0 +1,116 @@
+erDiagram
+    User {
+        uuid id PK
+        string googleId
+        string email UK
+        string name
+        string profilePictureUrl
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    DietaryProfile {
+        uuid id PK
+        uuid userId FK
+        enum dietType "OMNIVORE | VEGETARIAN | VEGAN | PESCATARIAN | KETO | PALEO | MEDITERRANEAN"
+        json allergies
+        json culturalPreferences
+        integer calorieTarget
+        string location
+        string lifestyle
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    MealPlan {
+        uuid id PK
+        uuid userId FK
+        uuid dietaryProfileId FK
+        string name
+        date startDate
+        date endDate
+        enum frequency "WEEKLY | MONTHLY | CUSTOM"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Meal {
+        uuid id PK
+        string name
+        string description
+        integer calories
+        enum preparationType "HOMEMADE | TAKEOUT | LEFTOVER | MEAL_PREP"
+        boolean isBatchCook
+        uuid recipeId FK "nullable"
+        timestamp createdAt
+    }
+
+    Recipe {
+        uuid id PK
+        string name
+        text instructions
+        integer prepTime "minutes"
+        integer cookTime "minutes"
+        enum difficulty "EASY | MEDIUM | HARD"
+        integer servings
+        decimal estimatedCost
+        decimal totalCalories
+        decimal totalProtein
+        decimal totalCarbs
+        decimal totalFat
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Ingredient {
+        uuid id PK
+        string name UK
+        enum category "VEGETABLE | FRUIT | PROTEIN | GRAIN | DAIRY | SPICE | OIL_FAT | CONDIMENT | LEGUME | NUT_SEED | SWEETENER | BEVERAGE | OTHER"
+        string purchaseUnit
+        decimal averagePrice
+        timestamp createdAt
+    }
+
+    NutritionalInfo {
+        uuid id PK
+        uuid ingredientId FK
+        decimal servingSize
+        string servingUnit
+        decimal calories
+        decimal protein
+        decimal carbohydrates
+        decimal fat
+        decimal saturatedFat
+        decimal fiber
+        decimal calcium
+        decimal iron
+        decimal vitaminC
+    }
+
+    MealPlanMeal {
+        uuid id PK
+        uuid mealPlanId FK
+        uuid mealId FK
+        enum dayOfWeek "MONDAY | TUESDAY | WEDNESDAY | THURSDAY | FRIDAY | SATURDAY | SUNDAY"
+        enum mealTime "BREAKFAST | LUNCH | DINNER | SNACK"
+        integer orderInDay
+    }
+
+    RecipeIngredient {
+        uuid id PK
+        uuid recipeId FK
+        uuid ingredientId FK
+        decimal quantity
+        string unit
+    }
+
+    %% Relationships
+    User ||--o| DietaryProfile : "has"
+    User ||--o{ MealPlan : "creates"
+    DietaryProfile ||--o{ MealPlan : "configures"
+    MealPlan ||--o{ MealPlanMeal : "contains"
+    Meal ||--o{ MealPlanMeal : "scheduled in"
+    Meal }o--o| Recipe : "prepared from"
+    Recipe ||--o{ RecipeIngredient : "requires"
+    Ingredient ||--o{ RecipeIngredient : "used in"
+    Ingredient ||--o| NutritionalInfo : "has"
